@@ -1,0 +1,27 @@
+# Environnement virtuel
+venv/
+env/
+.venv/
+
+# Fichiers Python temporaires
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Base de données SQLite (optionnel, si vous ne voulez pas partager database.db)
+database.db
+
+# Modèles et fichiers volumineux (optionnel, si vous ne voulez pas partager)
+model.pkl
+scaler.pkl
+
+# Fichiers temporaires
+*.log
+*.cache
+.DS_Store
+
+# Dossier de rapport et captures d’écran
+report.tex
+report.pdf
+*.png

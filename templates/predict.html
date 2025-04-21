@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diabetes Prediction</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+        <div class="container">
+            <a class="navbar-brand" href="#">Virtual Medical Center</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="{{ url_for('predict') }}">Prediction</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('patients') }}">My Patients</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('logout') }}">Log Out</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header Image -->
+    <div class="header-image text-center text-white d-flex align-items-center">
+        <div class="container">
+            <h1 class="display-4">Diabetes Prediction</h1>
+            <p class="lead">Use our tool to assess diabetes risk</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container my-5">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}" role="alert">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        <div class="card shadow-sm p-4 mx-auto" style="max-width: 500px;">
+            <h2 class="text-center mb-4">Enter Patient Data</h2>
+            <form method="POST" action="{{ url_for('predict') }}">
+                <div class="mb-3">
+                    <label for="patient_name" class="form-label">Patient Name:</label>
+                    <input type="text" class="form-control" id="patient_name" name="patient_name" required>
+                </div>
+                <div class="mb-3">
+                    <label for="pregnancies" class="form-label">Number of Pregnancies:</label>
+                    <input type="number" class="form-control" id="pregnancies" name="pregnancies" required>
+                </div>
+                <div class="mb-3">
+                    <label for="glucose" class="form-label">Glucose (mg/dL):</label>
+                    <input type="number" class="form-control" id="glucose" name="glucose" required>
+                </div>
+                <div class="mb-3">
+                    <label for="bloodpressure" class="form-label">Blood Pressure (mm Hg):</label>
+                    <input type="number" class="form-control" id="bloodpressure" name="bloodpressure" required>
+                </div>
+                <div class="mb-3">
+                    <label for="skinthickness" class="form-label">Skin Thickness (mm):</label>
+                    <input type="number" class="form-control" id="skinthickness" name="skinthickness" required>
+                </div>
+                <div class="mb-3">
+                    <label for="insulin" class="form-label">Insulin (mu U/mL):</label>
+                    <input type="number" class="form-control" id="insulin" name="insulin" required>
+                </div>
+                <div class="mb-3">
+                    <label for="bmi" class="form-label">BMI (kg/m²):</label>
+                    <input type="number" class="form-control" id="bmi" name="bmi" step="0.1" required>
+                </div>
+                <div class="mb-3">
+                    <label for="pedigree" class="form-label">Diabetes Pedigree Function:</label>
+                    <input type="number" class="form-control" id="pedigree" name="pedigree" step="0.01" required>
+                </div>
+                <div class="mb-3">
+                    <label for="age" class="form-label">Age (years):</label>
+                    <input type="number" class="form-control" id="age" name="age" required>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Predict</button>
+            </form>
+        </div>
+
+        {% if patient_data %}
+            <div class="card shadow-sm p-4 mt-5">
+                <h2 class="text-center mb-4">Patient Results</h2>
+                <table class="table table-striped table-bordered">
+                    <thead class="table-success">
+                        <tr>
+                            <th>Feature</th>
+                            <th>Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for key, value in patient_data.items() %}
+                            <tr>
+                                <td>{{ key }}</td>
+                                <td>{{ value }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-light text-center py-4">
+        <div class="container">
+            <p class="mb-0">© 2025 Virtual Medical Center. All rights reserved.</p>
+            <p>Contact: info@virtualmedicalcenter.com | Phone: +33 1 23 45 67 89</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+</body>
+</html>
