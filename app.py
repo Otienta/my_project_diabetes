@@ -232,3 +232,37 @@ def logout():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+import os
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=False)
+
+def init_db():
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute('''CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT UNIQUE NOT NULL,
+        password TEXT NOT NULL
+    )''')
+    cursor.execute('''CREATE TABLE IF NOT EXISTS patients (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER,
+        name TEXT NOT NULL,
+        pregnancies INTEGER,
+        glucose INTEGER,
+        blood_pressure INTEGER,
+        skin_thickness INTEGER,
+        insulin INTEGER,
+        bmi REAL,
+        diabetes_pedigree REAL,
+        age INTEGER,
+        prediction TEXT,
+        probability REAL,
+        FOREIGN KEY (user_id) REFERENCES users (id)
+    )''')
+    conn.commit()
+    conn.close()
+
+init_db()  # Appeler au démarrage
