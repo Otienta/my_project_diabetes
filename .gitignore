@@ -12,10 +12,6 @@ __pycache__/
 # Base de données SQLite (optionnel, si vous ne voulez pas partager database.db)
 database.db
 
-# Modèles et fichiers volumineux (optionnel, si vous ne voulez pas partager)
-model.pkl
-scaler.pkl
-
 # Fichiers temporaires
 *.log
 *.cache
