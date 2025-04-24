@@ -2,9 +2,18 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 import sqlite3
 import joblib
 import numpy as np
+import os
 
 app = Flask(__name__)
 app.secret_key = 'diabetes_prediction_key'
+
+# Function to check if a value can be converted to float
+def is_number(value):
+    try:
+        float(value)
+        return True
+    except ValueError:
+        return False
 
 # Load the model and scaler
 try:
@@ -96,19 +105,28 @@ def predict():
     if request.method == 'POST':
         try:
             patient_name = request.form['patient_name']
-            features = [
-                float(request.form['pregnancies']),
-                float(request.form['glucose']),
-                float(request.form['bloodpressure']),
-                float(request.form['skinthickness']),
-                float(request.form['insulin']),
-                float(request.form['bmi']),
-                float(request.form['pedigree']),
-                float(request.form['age'])
-            ]
+            # Validate that inputs are numbers
+            pregnancies = request.form['pregnancies']
+            glucose = request.form['glucose']
+            bloodpressure = request.form['bloodpressure']
+            skinthickness = request.form['skinthickness']
+            insulin = request.form['insulin']
+            bmi = request.form['bmi']
+            pedigree = request.form['pedigree']
+            age = request.form['age']
+            
+            inputs = [pregnancies, glucose, bloodpressure, skinthickness, insulin, bmi, pedigree, age]
+            if not all(is_number(x) for x in inputs):
+                flash('Please enter valid numeric values for all fields.', 'danger')
+                return render_template('predict.html')
+            
+            # Convert to float
+            features = [float(x) for x in inputs]
+
             if any(x < 0 for x in features):
                 flash('Values cannot be negative.', 'danger')
                 return render_template('predict.html')
+            
             features_array = np.array([features])
             features_scaled = scaler.transform(features_array)
             prediction = model.predict(features_scaled)[0]
@@ -140,8 +158,14 @@ def predict():
             }
             flash('Data saved successfully!', 'success')
             return render_template('predict.html', patient_data=patient_data)
-        except ValueError:
+        except ValueError as e:
+            print(f"ValueError: {e}")  # Log the error
             flash('Please enter valid numeric values.', 'danger')
+            return render_template('predict.html')
+        except Exception as e:
+            print(f"Exception: {e}")  # Log the error
+            flash(f"An error occurred: {str(e)}", 'danger')
+            return render_template('predict.html')
     
     return render_template('predict.html')
 
@@ -170,19 +194,28 @@ def edit_patient(patient_id):
     if request.method == 'POST':
         try:
             patient_name = request.form['patient_name']
-            features = [
-                float(request.form['pregnancies']),
-                float(request.form['glucose']),
-                float(request.form['bloodpressure']),
-                float(request.form['skinthickness']),
-                float(request.form['insulin']),
-                float(request.form['bmi']),
-                float(request.form['pedigree']),
-                float(request.form['age'])
-            ]
+            # Validate that inputs are numbers
+            pregnancies = request.form['pregnancies']
+            glucose = request.form['glucose']
+            bloodpressure = request.form['bloodpressure']
+            skinthickness = request.form['skinthickness']
+            insulin = request.form['insulin']
+            bmi = request.form['bmi']
+            pedigree = request.form['pedigree']
+            age = request.form['age']
+            
+            inputs = [pregnancies, glucose, bloodpressure, skinthickness, insulin, bmi, pedigree, age]
+            if not all(is_number(x) for x in inputs):
+                flash('Please enter valid numeric values for all fields.', 'danger')
+                return render_template('edit_patient.html', patient_id=patient_id)
+            
+            # Convert to float
+            features = [float(x) for x in inputs]
+
             if any(x < 0 for x in features):
                 flash('Values cannot be negative.', 'danger')
                 return redirect(url_for('edit_patient', patient_id=patient_id))
+            
             features_array = np.array([features])
             features_scaled = scaler.transform(features_array)
             prediction = model.predict(features_scaled)[0]
@@ -195,8 +228,14 @@ def edit_patient(patient_id):
             conn.commit()
             flash('Data updated successfully!', 'success')
             return redirect(url_for('patients'))
-        except ValueError:
+        except ValueError as e:
+            print(f"ValueError: {e}")  # Log the error
             flash('Please enter valid numeric values.', 'danger')
+            return render_template('edit_patient.html', patient_id=patient_id)
+        except Exception as e:
+            print(f"Exception: {e}")  # Log the error
+            flash(f"An error occurred: {str(e)}", 'danger')
+            return render_template('edit_patient.html', patient_id=patient_id)
     
     c.execute('SELECT * FROM patients WHERE id = ? AND doctor_id = ?', (patient_id, session['user_id']))
     patient = c.fetchone()
@@ -230,38 +269,7 @@ def logout():
     flash('Logged out successfully.', 'success')
     return redirect(url_for('login'))
 
-#if __name__ == '__main__':
-#    app.run(debug=True)
-
 import os
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=False)
-
-def init_db():
-    conn = sqlite3.connect('database.db')
-    cursor = conn.cursor()
-    cursor.execute('''CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT UNIQUE NOT NULL,
-        password TEXT NOT NULL
-    )''')
-    cursor.execute('''CREATE TABLE IF NOT EXISTS patients (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER,
-        name TEXT NOT NULL,
-        pregnancies INTEGER,
-        glucose INTEGER,
-        blood_pressure INTEGER,
-        skin_thickness INTEGER,
-        insulin INTEGER,
-        bmi REAL,
-        diabetes_pedigree REAL,
-        age INTEGER,
-        prediction TEXT,
-        probability REAL,
-        FOREIGN KEY (user_id) REFERENCES users (id)
-    )''')
-    conn.commit()
-    conn.close()
-
