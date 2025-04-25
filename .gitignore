@@ -10,7 +10,7 @@ __pycache__/
 *.pyd
 
 # Base de données SQLite (optionnel, si vous ne voulez pas partager database.db)
-database.db
+#database.db
 
 # Fichiers temporaires
 *.log
